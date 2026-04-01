@@ -1130,6 +1130,7 @@ loadSignals();
 
 
 if __name__ == "__main__":
-    port = int(os.getenv("DASHBOARD_PORT", "5050"))
-    print(f"\n  ASME Intel Dashboard → http://localhost:5050\n")
-    app.run(host="127.0.0.1", port=port, debug=False)
+    port = int(os.getenv("PORT", os.getenv("DASHBOARD_PORT", "5050")))
+    host = "0.0.0.0"  # bind to all interfaces for Railway/cloud
+    print(f"\n  ASME Intel Dashboard → http://localhost:{port}\n")
+    app.run(host=host, port=port, debug=False)
