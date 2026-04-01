@@ -1,0 +1,26 @@
+# Environment — never commit secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# macOS
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Generated logo variants (keep only the extracted one)
+static/asme-logo.png
+static/asme-logo.gif
+static/asme-logo.svg
+static/asme-logo-clean.png
+static/asme-logo-transparent.png
