@@ -262,6 +262,11 @@ def index():
     return render_template_string(DASHBOARD_HTML)
 
 
+@app.route("/api/test")
+def api_test():
+    return jsonify({"ok": True, "notion_db": NOTION_DATABASE_ID[:8] + "...", "notion_key_set": bool(NOTION_API_KEY)})
+
+
 @app.route("/api/signals")
 def api_signals():
     try:
@@ -746,17 +751,29 @@ async function loadSignals(){
     <div class="loading-screen"><div class="spinner"></div><div>Loading signals from Notion...</div></div>`;
   try {
     const res = await fetch('/api/signals');
+    if(!res.ok) throw new Error('API returned HTTP ' + res.status);
     const data = await res.json();
+    if(data.error) throw new Error('API error: ' + data.error);
     allSignals = data.signals || [];
+
+    // Safe date formatting — no locale dependency
+    const now = new Date();
     document.getElementById('ts-label').textContent =
-      'Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+      'Updated ' + now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
     document.getElementById('view-date').textContent =
-      new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
-    updateSidebar(allSignals);
-    renderMain();
+      now.toDateString();
+
+    try { updateSidebar(allSignals); } catch(e2){ console.error('updateSidebar failed:', e2); }
+    try { renderMain(); } catch(e3){
+      document.getElementById('main-body').innerHTML =
+        `<div class="empty-state">Render error: ${e3.message}<br><small>${e3.stack}</small></div>`;
+      return;
+    }
   } catch(e) {
     document.getElementById('main-body').innerHTML =
-      `<div class="empty-state">Failed to load signals.<br><small>${e}</small></div>`;
+      `<div class="empty-state" style="color:#f25757">
+        <strong>Error loading signals</strong><br><br>${e.message}
+      </div>`;
   }
 }
 
